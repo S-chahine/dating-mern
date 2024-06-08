@@ -1,16 +1,20 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import Cards from './dbCards.js'
-import Cors from 'cors'
+import express from 'express';
+import mongoose from 'mongoose';
+import Cards from './dbCards.js';
+import Cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config();
 
 // App Config
-const app = express()
-const port = process.env.PORT || 8001
-const connection_url = 'mongodb+srv://samah:mongo123@cluster0.jygycz9.mongodb.net/'
+const app = express();
+const port = process.env.PORT || 8001;
+const connection_url = process.env.MONGODB_URL;
 
 // Middleware
-app.use(express.json())
-app.use(Cors())
+app.use(express.json());
+app.use(Cors());
 
 // DB Config
 mongoose.connect(connection_url)
@@ -43,6 +47,14 @@ app.get('/dating/cards', async (req, res) => {
     } catch (err) {
         res.status(500).send(err);
     }
+});
+
+// Serve static files from the React app
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, 'dating-app-frontend/build')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dating-app-frontend/build', 'index.html'));
 });
 
 // Listener
